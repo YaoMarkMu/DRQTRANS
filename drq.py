@@ -82,7 +82,7 @@ class Critic(nn.Module):
         return q1, q2
 
     def log(self, logger, step):
-        self.encoder.log(logger, step)
+        #self.encoder.log(logger, step)
 
         for k, v in self.outputs.items():
             logger.log_histogram(f'train_critic/{k}_hist', v, step)
