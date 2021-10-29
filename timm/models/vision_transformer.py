@@ -60,7 +60,15 @@ default_cfgs = {
     'vit_tiny_patch6_84': _cfg(
         url='https://storage.googleapis.com/vit_models/augreg/'
             'Ti_16-i21k-300ep-lr_0.001-aug_none-wd_0.03-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.03-res_224.npz',
-        input_size=(3, 84, 84), distilled=True),
+        input_size=(3, 84, 84)),
+    'vit_small_patch6_84': _cfg(
+        url='https://storage.googleapis.com/vit_models/augreg/'
+            'Ti_16-i21k-300ep-lr_0.001-aug_none-wd_0.03-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.03-res_224.npz',
+        input_size=(3, 84, 84)),
+    'vit_base_patch6_84': _cfg(
+        url='https://storage.googleapis.com/vit_models/augreg/'
+            'Ti_16-i21k-300ep-lr_0.001-aug_none-wd_0.03-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.03-res_224.npz',
+        input_size=(3, 84, 84)),
     'vit_tiny_patch16_384': _cfg(
         url='https://storage.googleapis.com/vit_models/augreg/'
             'Ti_16-i21k-300ep-lr_0.001-aug_none-wd_0.03-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.03-res_384.npz',
@@ -568,6 +576,21 @@ def vit_tiny_patch6_84(pretrained=False, **kwargs):
     model = _create_vision_transformer('vit_tiny_patch6_84', pretrained=pretrained, **model_kwargs)
     return model
 
+@register_model
+def vit_small_patch6_84(pretrained=False, **kwargs):
+    """ ViT-Tiny (Vit-Ti/16)
+    """
+    model_kwargs = dict(patch_size=6,embed_dim=384, depth=12, num_heads=6, in_chans=9,distilled=False, **kwargs)
+    model = _create_vision_transformer('vit_small_patch6_84', pretrained=pretrained, **model_kwargs)
+    return model
+
+@register_model
+def vit_base_patch6_84(pretrained=False, **kwargs):
+    """ ViT-Tiny (Vit-Ti/16)
+    """
+    model_kwargs = dict(patch_size=6,embed_dim=768, depth=12, num_heads=12, in_chans=9,distilled=False, **kwargs)
+    model = _create_vision_transformer('vit_base_patch6_84', pretrained=pretrained, **model_kwargs)
+    return model
 
 @register_model
 def vit_tiny_patch16_384(pretrained=False, **kwargs):
