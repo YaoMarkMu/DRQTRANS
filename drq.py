@@ -119,7 +119,7 @@ class DRQAgent(object):
         self.critic_target.load_state_dict(self.critic.state_dict())
 
         # tie conv layers between actor and critic
-        self.actor.encoder.copy_conv_weights_from(self.critic.encoder)
+        #self.actor.encoder.copy_conv_weights_from(self.critic.encoder)
 
         self.log_alpha = torch.tensor(np.log(init_temperature)).to(device)
         self.log_alpha.requires_grad = True
