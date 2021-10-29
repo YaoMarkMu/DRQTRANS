@@ -3,7 +3,7 @@ from torch import nn
 
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
-from timm.models import vit_tiny_patch6_84
+from timm.models import vit_tiny_patch6_84, vit_small_patch6_84,vit_base_patch6_84
 # helpers
 
 def pair(t):
@@ -145,62 +145,140 @@ class RiT(nn.Module):
         img_latent += self.pos_embedding[:, :n]
         x = self.transformer(img_latent)
         return x
-class T_Encoder(nn.Module):
-    def __init__(self,obs_shape, feature_dim):
-        super().__init__()
-        self.num_step=int(obs_shape[0]/3)
-        self.hidden_dim=512
-        #self.obs_shape = obs_shape
-        self.feature_dim = feature_dim
-        self.image_encode = ViT(
-        image_size=obs_shape[-1],
-        patch_size=12,
-        dim=self.hidden_dim,
-        depth=6,
-        heads=16,
-        mlp_dim=512,
-        dropout=0.1,
-        emb_dropout=0.1
-    )
-        self.policy_encoder = DiT(
-        num_step=self.num_step,
-        dim=256,
-        depth=6,
-        heads=16,
-        mlp_dim=512,
-        dropout=0.1,
-        emb_dropout=0.1
-    )
-        self.reconstruct_encoder = RiT(
-        num_step=self.num_step,
-        dim=self.hidden_dim,
-        depth=6,
-        heads=16,
-        mlp_dim=512,
-        dropout=0.1,
-        emb_dropout=0.1
-    )
-        self.mlp = nn.Sequential(
-            nn.Linear(self.hidden_dim, 256),
-            nn.GELU(),
-            nn.Linear(256, self.feature_dim),
-        )
+# class T_Encoder(nn.Module):
+#     def __init__(self,obs_shape, feature_dim):
+#         super().__init__()
+#         self.num_step=int(obs_shape[0]/3)
+#         self.hidden_dim=512
+#         #self.obs_shape = obs_shape
+#         self.feature_dim = feature_dim
+#         self.image_encode = ViT(
+#         image_size=obs_shape[-1],
+#         patch_size=12,
+#         dim=self.hidden_dim,
+#         depth=6,
+#         heads=16,
+#         mlp_dim=512,
+#         dropout=0.1,
+#         emb_dropout=0.1
+#     )
+#         self.policy_encoder = DiT(
+#         num_step=self.num_step,
+#         dim=256,
+#         depth=6,
+#         heads=16,
+#         mlp_dim=512,
+#         dropout=0.1,
+#         emb_dropout=0.1
+#     )
+#         self.reconstruct_encoder = RiT(
+#         num_step=self.num_step,
+#         dim=self.hidden_dim,
+#         depth=6,
+#         heads=16,
+#         mlp_dim=512,
+#         dropout=0.1,
+#         emb_dropout=0.1
+#     )
+#         self.mlp = nn.Sequential(
+#             nn.Linear(self.hidden_dim, 256),
+#             nn.GELU(),
+#             nn.Linear(256, self.feature_dim),
+#         )
 
 
-    def forward(self,img_sequence):
-        latent = self.image_encode(img_sequence)
-        rec_latent = latent[0].reshape(-1, self.num_step, self.hidden_dim)
-        policy_latent = latent[1].reshape(-1, self.num_step, self.hidden_dim)
-        policy_feature = self.mlp(self.policy_encoder(policy_latent))
-        rec_feature = self.reconstruct_encoder(rec_latent)
-        return policy_feature
+#     def forward(self,img_sequence):
+#         latent = self.image_encode(img_sequence)
+#         rec_latent = latent[0].reshape(-1, self.num_step, self.hidden_dim)
+#         policy_latent = latent[1].reshape(-1, self.num_step, self.hidden_dim)
+#         policy_feature = self.mlp(self.policy_encoder(policy_latent))
+#         rec_feature = self.reconstruct_encoder(rec_latent)
+#         return policy_feature
 
-class Timm_Encoder(nn.Module):
+class Timm_Encoder_tiny(nn.Module):
     def __init__(self,obs_shape, feature_dim):
         super().__init__()
         self.num_step=int(obs_shape[0]/3)
         self.feature_dim = feature_dim
         self.image_encode = vit_tiny_patch6_84()
+        self.policy_encoder = DiT(
+        num_step=self.num_step,
+        dim=192,
+        depth=12,
+        heads=3,
+        mlp_dim=128,
+        dropout=0.1,
+        emb_dropout=0.1
+    )
+        self.mlp = nn.Sequential(
+            nn.Linear(192, 256),
+            nn.GELU(),
+            nn.Linear(256, self.feature_dim),
+        )
+        self.con_mlp = nn.Sequential(
+            nn.Linear(192, 256),
+            nn.GELU(),
+            nn.Linear(256, self.feature_dim),
+        )
+    def forward(self,img_sequence,detach):
+        # img_sequence = img_sequence.reshape(-1,3,84,84)
+        latent = self.image_encode.forward_features(img_sequence)
+        # print(latent[0].shape)
+        # policy_latent = latent[1].reshape(-1, self.num_step*192)
+        policy_feature = self.con_mlp(latent)
+        #print(policy_feature.shape)
+        # policy_feature = self.mlp(self.policy_encoder(policy_latent))
+        if detach:
+            policy_feature=policy_feature.detach()
+
+        return policy_feature
+
+
+class Timm_Encoder_small(nn.Module):
+    def __init__(self,obs_shape, feature_dim):
+        super().__init__()
+        self.num_step=int(obs_shape[0]/3)
+        self.feature_dim = feature_dim
+        self.image_encode = vit_small_patch6_84()
+        self.policy_encoder = DiT(
+        num_step=self.num_step,
+        dim=192,
+        depth=12,
+        heads=3,
+        mlp_dim=128,
+        dropout=0.1,
+        emb_dropout=0.1
+    )
+        self.mlp = nn.Sequential(
+            nn.Linear(192, 256),
+            nn.GELU(),
+            nn.Linear(256, self.feature_dim),
+        )
+        self.con_mlp = nn.Sequential(
+            nn.Linear(192, 256),
+            nn.GELU(),
+            nn.Linear(256, self.feature_dim),
+        )
+    def forward(self,img_sequence,detach):
+        # img_sequence = img_sequence.reshape(-1,3,84,84)
+        latent = self.image_encode.forward_features(img_sequence)
+        # print(latent[0].shape)
+        # policy_latent = latent[1].reshape(-1, self.num_step*192)
+        policy_feature = self.con_mlp(latent)
+        #print(policy_feature.shape)
+        # policy_feature = self.mlp(self.policy_encoder(policy_latent))
+        if detach:
+            policy_feature=policy_feature.detach()
+
+        return policy_feature
+
+
+class Timm_Encoder_base(nn.Module):
+    def __init__(self,obs_shape, feature_dim):
+        super().__init__()
+        self.num_step=int(obs_shape[0]/3)
+        self.feature_dim = feature_dim
+        self.image_encode = vit_base_patch6_84()
         self.policy_encoder = DiT(
         num_step=self.num_step,
         dim=192,
