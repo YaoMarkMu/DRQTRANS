@@ -261,7 +261,7 @@ class VisionTransformer(nn.Module):
             weight_init: (str): weight init scheme
         """
         super().__init__()
-        print("patch_size{}".format(patch_size))
+        #print("patch_size{}".format(patch_size))
         self.num_classes = num_classes
         self.num_features = self.embed_dim = embed_dim  # num_features for consistency with other models
         self.num_tokens = 2 if distilled else 1
@@ -342,7 +342,7 @@ class VisionTransformer(nn.Module):
 
     def forward_features(self, x):
         x = self.patch_embed(x)
-        print("patch_embed.shape{}".format(x.shape))
+        #print("patch_embed.shape{}".format(x.shape))
         cls_token = self.cls_token.expand(x.shape[0], -1, -1)  # stole cls_tokens impl from Phil Wang, thanks
         if self.dist_token is None:
             x = torch.cat((cls_token, x), dim=1)
