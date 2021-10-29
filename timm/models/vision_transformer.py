@@ -261,6 +261,7 @@ class VisionTransformer(nn.Module):
             weight_init: (str): weight init scheme
         """
         super().__init__()
+        print("patch_size{}".format(patch_size))
         self.num_classes = num_classes
         self.num_features = self.embed_dim = embed_dim  # num_features for consistency with other models
         self.num_tokens = 2 if distilled else 1
