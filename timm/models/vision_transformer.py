@@ -562,7 +562,7 @@ def vit_tiny_patch16_224(pretrained=False, **kwargs):
 def vit_tiny_patch6_84(pretrained=False, **kwargs):
     """ ViT-Tiny (Vit-Ti/16)
     """
-    model_kwargs = dict(patch_size=16,embed_dim=192, depth=12, num_heads=3, in_chans=9,distilled=False, **kwargs)
+    model_kwargs = dict(patch_size=6,embed_dim=192, depth=12, num_heads=3, in_chans=9,distilled=False, **kwargs)
     model = _create_vision_transformer('vit_tiny_patch6_84', pretrained=pretrained, **model_kwargs)
     return model
 
