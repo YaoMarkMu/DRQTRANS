@@ -220,7 +220,7 @@ class Timm_Encoder(nn.Module):
             nn.GELU(),
             nn.Linear(256, self.feature_dim),
         )
-    def forward(self,img_sequence):
+    def forward(self,img_sequence,detach):
         # img_sequence = img_sequence.reshape(-1,3,84,84)
         latent = self.image_encode.forward_features(img_sequence)
         # print(latent[0].shape)
@@ -228,4 +228,7 @@ class Timm_Encoder(nn.Module):
         policy_feature = self.con_mlp(latent)
         #print(policy_feature.shape)
         # policy_feature = self.mlp(self.policy_encoder(policy_latent))
+        if detach:
+            policy_feature=policy_feature.detach()
+
         return policy_feature
