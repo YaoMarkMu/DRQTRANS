@@ -249,13 +249,8 @@ class Timm_Encoder_small(nn.Module):
         dropout=0.1,
         emb_dropout=0.1
     )
-        self.mlp = nn.Sequential(
-            nn.Linear(192, 256),
-            nn.GELU(),
-            nn.Linear(256, self.feature_dim),
-        )
         self.con_mlp = nn.Sequential(
-            nn.Linear(192, 256),
+            nn.Linear(384, 256),
             nn.GELU(),
             nn.Linear(256, self.feature_dim),
         )
@@ -288,13 +283,8 @@ class Timm_Encoder_base(nn.Module):
         dropout=0.1,
         emb_dropout=0.1
     )
-        self.mlp = nn.Sequential(
-            nn.Linear(192, 256),
-            nn.GELU(),
-            nn.Linear(256, self.feature_dim),
-        )
         self.con_mlp = nn.Sequential(
-            nn.Linear(192, 256),
+            nn.Linear(768, 256),
             nn.GELU(),
             nn.Linear(256, self.feature_dim),
         )
